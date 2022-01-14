@@ -1,2 +1,2 @@
 # idia-container-trap
-Container for TraP workflow on ilifu
+Sinularity container definition file for TraP workflow on ilifu
