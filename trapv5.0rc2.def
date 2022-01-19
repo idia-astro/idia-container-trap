@@ -1,0 +1,61 @@
+Bootstrap: debootstrap
+MirrorURL: http://archive.ubuntu.com/ubuntu/
+OSVersion: bionic
+Include: software-properties-common
+
+%labels
+
+    APPLICATION_NAME_BASE Ubuntu LTS + Python2.7 + TRaPv5.0rc2
+    OS_VERSION 18.04 
+
+    SYSTEM_NAME iLifu
+    SYSTEM_SINGULARITY_VERSION 2.6
+    SYSTEM_URL http://www.ilifu.ac.za
+
+    AUTHOR_NAME Jeremy Smith
+    AUTHOR_EMAIL jeremy@idia.ac.za
+
+%environment
+
+        export LC_ALL=C
+        unset XDG_RUNTIME_DIR
+
+%post
+        ##############################################################################
+        # Setting up Environment  
+        # Create Installation Directories and export paths. This is needed as part of post.
+        # %environment scriptlet does not define these paths during %post, only after.
+
+        # Fix command prompt in Singularity 3.5.2
+        printf 'export PS1="\u@$SINGULARITY_NAME:\w$ "' > /.singularity.d/env/999-psvars.sh
+        ###############################################################################
+
+        # Installation of the utility packages and repositories
+        apt-get update -y
+        apt-get install -y wget vim apt-utils git bzip2 build-essential ed
+        apt-add-repository universe
+        apt-get update -y
+        apt-get install -y python-pip postgresql postgresql-client postgresql-client-common python-tk
+        pip install --upgrade pip
+        pip install ipykernel
+
+        # Install TRaP
+        apt-get install -y libpq-dev
+        pip install --upgrade psycopg2 python-dateutil
+        cd /opt
+        git clone https://github.com/transientskp/tkp.git
+        cd tkp/
+        git checkout tags/r5.0rc2
+        printf '%s\n' '12m5' 'wq' | ed -s tkp/config/job_template/job_params.cfg
+        pip install -e ".[pixelstore]"
+        
+        # Install python packages
+        pip install --upgrade scipy numpy astropy aplpy pandas matplotlib astroML
+
+        # Cleanup the container
+        apt-get clean
+        apt-get autoclean
+
+%runscript
+
+        python "$@"
