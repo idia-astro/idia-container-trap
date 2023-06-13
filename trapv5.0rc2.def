@@ -45,7 +45,7 @@ Include: software-properties-common
         cd /opt
         git clone https://github.com/transientskp/tkp.git
         cd tkp/
-        git checkout tags/r5.0rc2
+        git checkout tags/r5.0
         printf '%s\n' '12m5' 'wq' | ed -s tkp/config/job_template/job_params.cfg
         pip install -e ".[pixelstore]"
         
